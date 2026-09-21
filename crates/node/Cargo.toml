@@ -1,0 +1,20 @@
+[package]
+name = "post-quantum-node"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+name = "post_quantum"
+crate-type = ["cdylib"]
+test = false
+doctest = false
+
+[dependencies]
+post-quantum-core = { path = "../core" }
+post-quantum-platform = { path = "../platform" }
+
+[features]
+default = []
+# Never enable this feature when creating distributed artifacts.
+validation-hooks = []

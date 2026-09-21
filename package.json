@@ -1,0 +1,49 @@
+{
+  "name": "post-quantum",
+  "version": "1.0.0",
+  "description": "Rust-backed ML-KEM-1024 encryption and ML-DSA-87 signatures for Node.js",
+  "private": true,
+  "main": "index.cjs",
+  "module": "index.mjs",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./index.d.ts",
+      "import": "./index.mjs",
+      "require": "./index.cjs"
+    }
+  },
+  "files": [
+    "index.cjs",
+    "index.mjs",
+    "index.d.ts",
+    "lib/platform.cjs",
+    "README.md",
+    "SECURITY.md",
+    "docs/",
+    "examples/",
+    "validation/README.md",
+    "validation/vectors/",
+    "validation/acvp/manifest.json",
+    "validation/acvp/NOTICE.md"
+  ],
+  "engines": {
+    "node": "^22.0.0 || ^24.0.0"
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.cjs",
+    "pack:artifacts": "node scripts/package.mjs",
+    "test:package": "node scripts/test-package.mjs",
+    "verify:release": "node scripts/verify-release.mjs"
+  },
+  "optionalDependencies": {
+    "post-quantum-darwin-arm64": "1.0.0",
+    "post-quantum-darwin-x64": "1.0.0",
+    "post-quantum-linux-arm64-gnu": "1.0.0",
+    "post-quantum-linux-arm64-musl": "1.0.0",
+    "post-quantum-linux-x64-gnu": "1.0.0",
+    "post-quantum-linux-x64-musl": "1.0.0",
+    "post-quantum-win32-x64-msvc": "1.0.0"
+  }
+}

@@ -1,0 +1,9 @@
+[package]
+name = "post-quantum-platform"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Local operating-system entropy and best-effort secret erasure"
+
+[dependencies]

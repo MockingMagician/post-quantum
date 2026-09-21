@@ -1,0 +1,10 @@
+[package]
+name = "post-quantum-core"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+description = "Rust core for versioned ML-KEM-1024 encryption and ML-DSA-87 signatures"
+
+[dependencies]
+post-quantum-platform = { path = "../platform" }

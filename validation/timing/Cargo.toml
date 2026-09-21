@@ -1,0 +1,15 @@
+[package]
+name = "post-quantum-timing"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+post-quantum-platform = { path = "../../crates/platform" }
+post-quantum-core = { path = "../../crates/core" }
+
+[workspace]
+members = ["."]
+
+[profile.release]
+lto = "thin"

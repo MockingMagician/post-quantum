@@ -1,0 +1,64 @@
+{
+  "repository": "https://github.com/usnistgov/ACVP-Server",
+  "commit": "975de31eb83d87039ec88934fdc47d8c312b892d",
+  "selection": "All category-5 groups except ML-DSA preHash and externalMu; no individual test cases removed.",
+  "files": [
+    {
+      "file": "ML-KEM-keyGen-FIPS203.json",
+      "sha256": "c19af30546411c062627bed22f7c21acc2131de2aaa8162258f2ca3d5d3095ce",
+      "upstream": "https://raw.githubusercontent.com/usnistgov/ACVP-Server/975de31eb83d87039ec88934fdc47d8c312b892d/gen-val/json-files/ML-KEM-keyGen-FIPS203/internalProjection.json",
+      "upstreamSha256": "d7a62a2c3476957f56dd8d24f9004ea6776ccfe995ffe71a65bb9506dc9c7b1b",
+      "groups": [
+        3
+      ],
+      "testCases": 25
+    },
+    {
+      "file": "ML-KEM-encapDecap-FIPS203.json",
+      "sha256": "91ae9e98ad0a7fab7d3daa95a0aa60d7892a8334d7df81b689c663f7167913c7",
+      "upstream": "https://raw.githubusercontent.com/usnistgov/ACVP-Server/975de31eb83d87039ec88934fdc47d8c312b892d/gen-val/json-files/ML-KEM-encapDecap-FIPS203/internalProjection.json",
+      "upstreamSha256": "a556952ce869bb89c3a3196a701dad89647c193a34c86eafb61a9d710d5b810f",
+      "groups": [
+        3,
+        6,
+        11,
+        12
+      ],
+      "testCases": 55
+    },
+    {
+      "file": "ML-DSA-keyGen-FIPS204.json",
+      "sha256": "4d2cf85ffad59ea967c17d6ae6c06024a13e8d31ef1248377f4c9cee112b2a46",
+      "upstream": "https://raw.githubusercontent.com/usnistgov/ACVP-Server/975de31eb83d87039ec88934fdc47d8c312b892d/gen-val/json-files/ML-DSA-keyGen-FIPS204/internalProjection.json",
+      "upstreamSha256": "e67ee6540d40e11506c3c4e3b1f79fc1cefcd49820db99fc61f87cc8ba463baf",
+      "groups": [
+        3
+      ],
+      "testCases": 25
+    },
+    {
+      "file": "ML-DSA-sigGen-FIPS204.json",
+      "sha256": "3fbffc08f8873a28a0a7f28e82cc5e531ca2448b3ca088e41cb4d96b0e9d6377",
+      "upstream": "https://raw.githubusercontent.com/usnistgov/ACVP-Server/975de31eb83d87039ec88934fdc47d8c312b892d/gen-val/json-files/ML-DSA-sigGen-FIPS204/internalProjection.json",
+      "upstreamSha256": "72dcaf5f69853ca267ccd16af9cb40949786aca0fcfbf05d1ebeba132b93af22",
+      "groups": [
+        5,
+        12,
+        17,
+        24
+      ],
+      "testCases": 60
+    },
+    {
+      "file": "ML-DSA-sigVer-FIPS204.json",
+      "sha256": "973566fd0ab96d7f811cc015673e92947f4a24872609f0e9650e6d5d960b45c6",
+      "upstream": "https://raw.githubusercontent.com/usnistgov/ACVP-Server/975de31eb83d87039ec88934fdc47d8c312b892d/gen-val/json-files/ML-DSA-sigVer-FIPS204/internalProjection.json",
+      "upstreamSha256": "47cdd6314c7f746d02421ffcba89d4dbc7bb875ac49e07a029fdfc26fba55437",
+      "groups": [
+        5,
+        12
+      ],
+      "testCases": 30
+    }
+  ]
+}

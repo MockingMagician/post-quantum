@@ -1,0 +1,247 @@
+name: Validate native packages
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  RUST_MIN_STACK: '33554432'
+  RUSTUP_TOOLCHAIN: '1.93.1'
+
+concurrency:
+  group: native-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  quality:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.93.1 --profile minimal --component rustfmt --component clippy --target aarch64-unknown-linux-gnu
+      - name: Prove production builds with empty cache and no network
+        run: node validation/production_graph.mjs
+      - run: cargo +1.93.1 fmt --all -- --check
+      - run: cargo +1.93.1 clippy --workspace --all-targets --frozen -- -D warnings
+      - run: python3 validation/fetch_acvp.py --check
+      - run: python3 validation/prepare_vectors.py --check
+      - run: python3 validation/fetch_primitives.py --check
+      - run: cargo +1.93.1 test --workspace --frozen
+      - name: Capture and screen release assembly for x64 and ARM64
+        run: |
+          node validation/codegen.mjs --target x86_64-unknown-linux-gnu
+          node validation/codegen.mjs --target aarch64-unknown-linux-gnu
+      - name: Preserve assembly for bounded human review
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-assembly-screening
+          path: .reports/codegen/
+          if-no-files-found: error
+      - name: Correlate selected post-ThinLTO instruction excerpts with the Node library
+        run: python3 validation/linked_codegen.py
+      - name: Preserve bounded final-link review material
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: linked-release-assembly
+          path: artifacts/validation/linked-codegen*
+          if-no-files-found: error
+      - name: Install pinned development-dependency audit tool
+        run: cargo install cargo-audit --version 0.22.2 --locked
+      - run: npm ci --prefix validation/typescript --ignore-scripts --no-audit --no-fund
+      - run: npm test --prefix validation/typescript
+      - run: node validation/audit_tooling.mjs
+      - run: npm run build
+      - run: npm test
+      - run: node validation/ffi_failures.mjs
+      - name: Build pinned independent OpenSSL oracle
+        run: bash scripts/ci-openssl.sh
+      - run: cargo +1.93.1 build -p post-quantum-core --example interop --frozen
+      - run: python3 validation/symmetric_reference.py --check
+      - run: python3 validation/openssl_interop.py --node
+
+  fuzz:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - run: rustup toolchain install nightly-2026-09-21 --profile minimal
+      - run: cargo +nightly-2026-09-21 install cargo-fuzz --version 0.13.2 --locked
+      - run: node validation/fuzz.mjs
+      - name: Preserve campaign provenance and logs
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fuzz-evidence
+          path: artifacts/validation/fuzz*
+          if-no-files-found: error
+      - name: Preserve crash reproducers
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: fuzz-crash-reproducers
+          path: fuzz/artifacts/
+          if-no-files-found: ignore
+
+  platform-miri:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: rustup toolchain install nightly-2026-09-21 --profile minimal --component miri
+      - run: cargo +nightly-2026-09-21 miri test -p post-quantum-platform --lib --frozen
+
+  ffi-asan:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['22']
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: rustup toolchain install nightly-2026-09-21 --profile minimal
+      - name: Instrument the binding and verify ASan detects its negative control
+        run: node validation/ffi_asan.mjs
+      - name: Preserve sanitizer results and exact runtime provenance
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ffi-asan-node-${{ matrix.node }}
+          path: .reports/ffi-asan.json
+          if-no-files-found: error
+
+  native:
+    needs: quality
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            platform: linux-x64-gnu
+          - runner: ubuntu-22.04-arm
+            target: aarch64-unknown-linux-gnu
+            platform: linux-arm64-gnu
+          - runner: macos-15-intel
+            target: x86_64-apple-darwin
+            platform: darwin-x64
+          - runner: macos-14
+            target: aarch64-apple-darwin
+            platform: darwin-arm64
+          - runner: windows-2022
+            target: x86_64-pc-windows-msvc
+            platform: win32-x64-msvc
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - name: Install pinned Rust toolchain
+        run: rustup toolchain install 1.93.1 --profile minimal --target ${{ matrix.target }}
+      - name: Build native artifact once
+        run: npm run build -- --target ${{ matrix.target }}
+        env:
+          RUSTUP_TOOLCHAIN: '1.93.1'
+          MACOSX_DEPLOYMENT_TARGET: '11.0'
+      - run: npm test
+      - run: npm run pack:artifacts
+      - run: npm run test:package
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '24'
+      - run: npm test
+      - run: npm run test:package
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: package-${{ matrix.platform }}
+          path: dist/${{ matrix.platform }}/
+          if-no-files-found: error
+
+  musl:
+    needs: quality
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            target: x86_64-unknown-linux-musl
+            platform: linux-x64-musl
+          - runner: ubuntu-22.04-arm
+            target: aarch64-unknown-linux-musl
+            platform: linux-arm64-musl
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Build on native musl architecture
+        env:
+          RUST_TARGET: ${{ matrix.target }}
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work -e RUST_TARGET \
+            -e GITHUB_REPOSITORY -e GITHUB_RUN_ID -e GITHUB_RUN_ATTEMPT -e GITHUB_SHA \
+            rust:1.93.1-alpine3.23@sha256:4fec02de605563c297c78a31064c8335bc004fa2b0bf406b1b99441da64e2d2d sh -ec '
+              apk add --no-cache build-base git nodejs npm
+              git config --global --add safe.directory /work
+              npm run build -- --target "$RUST_TARGET"
+            '
+      - name: Pack with the same npm major used by the other platforms
+        run: docker run --rm -v "$PWD:/work" -w /work node:22-alpine3.23@sha256:72c5815a06aed9a2273aea5628d74d348af57843a7b547af2fe53dd3e4b95261 sh -ec 'apk add --no-cache git; git config --global --add safe.directory /work; npm run pack:artifacts'
+      - name: Exercise archives and API on musl Node.js 22 and 24
+        run: |
+          for image in \
+            node:22-alpine3.23@sha256:72c5815a06aed9a2273aea5628d74d348af57843a7b547af2fe53dd3e4b95261 \
+            node:24-alpine3.23@sha256:9ec4a2e289874ed0d722e1772ec2de45d2801541db8612f3638b26f128c69ac2; do
+            docker run --rm -v "$PWD:/work" -w /work "$image" \
+              sh -ec 'npm test && npm run test:package'
+          done
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: package-${{ matrix.platform }}
+          path: dist/${{ matrix.platform }}/
+          if-no-files-found: error
+
+  delivery-gate:
+    needs: [quality, fuzz, ffi-asan, platform-miri, native, musl]
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      id-token: write
+      attestations: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: '22'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: package-*
+          path: collected
+      - name: Arrange verified platform records
+        run: |
+          mkdir dist
+          for directory in collected/package-*; do
+            mv "$directory" "dist/${directory##*/package-}"
+          done
+      - run: npm run verify:release
+      - name: Attest prepared archives
+        if: github.event_name != 'pull_request'
+        uses: actions/attest-build-provenance@96b4a1ef7235a096b17240c259729fdd70c83d45 # v2
+        with:
+          subject-path: dist/**/*.tgz
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: validated-release-candidate
+          path: dist/
+          if-no-files-found: error

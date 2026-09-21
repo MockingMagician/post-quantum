@@ -1,0 +1,10 @@
+{
+  "name": "post-quantum-types-validation",
+  "version": "0.0.0",
+  "private": true,
+  "devDependencies": {
+    "@types/node": "22.20.4",
+    "typescript": "5.9.3"
+  },
+  "scripts": { "test": "tsc -p tsconfig.json --noEmit" }
+}

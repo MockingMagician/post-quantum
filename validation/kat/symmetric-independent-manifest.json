@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "sha256": "0d1568a4ce0ac420f75793b08a28936507c38110baf41f916e762aa218295a93",
+  "publicTestData": true,
+  "poly1305Cases": 256,
+  "aeadCases": 128,
+  "poly1305Reference": "Independent Python integer arithmetic, RFC 8439 section 2.5",
+  "aeadReference": "OpenSSL 3.6.2 7 Apr 2026",
+  "generator": "validation/symmetric_reference.py"
+}
