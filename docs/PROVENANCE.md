@@ -25,8 +25,10 @@ Les tableaux NIST décrivent des corrections potentielles et ne constituent pas 
 
 La révision exacte des vecteurs NIST est figée au commit ACVP-Server `975de31eb83d87039ec88934fdc47d8c312b892d`. Les manifests de validation consignent les URL, empreintes, groupes et cas retenus. Les fichiers `.kat` sont des données converties pour les tests, pas du code tiers. La notice NIST demeure dans `validation/acvp/NOTICE.md`.
 
+Le code original de ce dépôt est offert sous `MIT OR Apache-2.0`. Les données ACVP reprises de NIST restent soumises à leur notice distincte, incluse en entier dans le dépôt. Les jeux de vecteurs générés localement sont identifiés par leurs manifests et leur provenance ; ils ne sont pas présentés comme des certifications NIST.
+
 ## Séparation des outils
 
 OpenSSL et Python servent uniquement de références de test. libFuzzer est une dépendance du workspace exclu `fuzz/`; TypeScript et ses types sont isolés sous `validation/typescript/`. Le graphe, les imports du module natif et une compilation avec cache Cargo vide et réseau isolé sont contrôlés par `validation/production_graph.mjs`. Les dépendances des outils sont analysées séparément par `validation/audit_tooling.mjs`.
 
-La vérification des empreintes et du graphe prouve une propriété observable des artefacts testés ; l'origine du code repose aussi sur la revue humaine des sources. Aucun audit indépendant ni preuve formelle de cette nouvelle implémentation n'est annoncé.
+La vérification des empreintes et du graphe prouve une propriété observable des artefacts testés ; l'origine du code repose aussi sur la revue humaine des sources. Les preuves ciblées de certaines fonctions sont documentées séparément ; aucun audit indépendant ni preuve formelle de l'implémentation entière n'est annoncé.

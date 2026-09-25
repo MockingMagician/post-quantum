@@ -6,7 +6,7 @@ Le [modèle de menace et la revue des secrets](docs/SECURITY.md) décrivent les 
 
 ## Signalement
 
-Aucun canal public de divulgation n'est encore configuré pour ce dépôt privé. Transmettre un signalement directement au propriétaire du dépôt par un canal privé déjà établi, sans clé de production ni donnée confidentielle. Une publication publique nécessite auparavant la désignation d'un contact de sécurité et d'une politique de versions prises en charge.
+Utiliser de préférence le canal privé **Report a vulnerability** du dépôt GitHub (onglet Security), lorsque celui-ci est activé. Si le canal n'est pas disponible, contacter le propriétaire du dépôt par un canal privé déjà établi. Ne pas inclure de clé de production ni de donnée confidentielle. Aucune version npm n'est actuellement publiée ou prise en charge.
 
 Joindre la version ou l'empreinte du code, la plateforme, les versions Node/Rust, le scénario et un exemple minimal utilisant des données synthétiques. Les rapports seront évalués avant une diffusion publique des détails. Aucun engagement de délai de correction n'est annoncé à ce stade.
 

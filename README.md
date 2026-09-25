@@ -4,7 +4,9 @@ Chiffrement ML-KEM-1024 / HKDF-SHA-512 / ChaCha20-Poly1305 et signatures ML-DSA-
 
 **Validation interne, sans audit indépendant ni certification FIPS.** Les paramètres asymétriques appartiennent à la catégorie NIST 5 ; cette catégorie ne constitue pas une preuve de sécurité du paquet ou de sa composition. Les primitives et le binding Node-API sont écrits localement d'après les normes, sans crate tierce dans la compilation de production. Cette réécriture n'a pas fait l'objet d'un audit indépendant ; consulter la [provenance](docs/PROVENANCE.md). Voir le [modèle de sécurité](docs/SECURITY.md) et les [preuves de validation et limites](docs/VALIDATION.md).
 
-Le paquet reste privé. La publication npm et la licence de diffusion ne sont pas définies à cette étape. Les archives locales peuvent être installées ensemble ; aucun compilateur n'est nécessaire chez leur utilisateur.
+Les [preuves ciblées et la revue de la frontière native](docs/ASSURANCE.md) détaillent ce qui est vérifié et ce qui reste ouvert. Un [dossier préparatoire](docs/AUDIT.md) définit le périmètre proposé pour un futur audit indépendant.
+
+Le code source est disponible sous double licence [MIT](LICENSE-MIT) ou [Apache-2.0](LICENSE-APACHE), au choix de l'utilisateur. Les vecteurs NIST conservent leur [notice propre](validation/acvp/NOTICE.md). Le paquet npm reste privé tant que toutes les plateformes et les archives n'ont pas été validées ; les archives locales peuvent être installées ensemble sans compilateur chez leur utilisateur.
 
 ## Développement
 
@@ -69,7 +71,7 @@ Le format propre au paquet est spécifié dans [FORMAT.md](docs/FORMAT.md), avec
 
 ## Distribution et vérification
 
-Les cibles prévues sont Linux x64/ARM64 (glibc et musl), macOS x64/ARM64, Windows x64 ; Node.js 22 et 24. Les [résultats de validation](docs/VALIDATION.md) distinguent les cibles exécutées localement de celles en attente de CI. À la demande du propriétaire, cette étape comprend la préparation de la CI uniquement, sans envoi sur GitHub ni exécution distante. Une future livraison multiplateforme restera conditionnée à la validation de toute la matrice.
+Les cibles prévues sont Linux x64/ARM64 (glibc et musl), macOS x64/ARM64, Windows x64 ; Node.js 22 et 24. Les [résultats de validation](docs/VALIDATION.md) distinguent les cibles exécutées localement de celles confirmées par GitHub Actions. Une future livraison multiplateforme restera conditionnée à la validation de toute la matrice.
 
 ```sh
 npm run pack:artifacts

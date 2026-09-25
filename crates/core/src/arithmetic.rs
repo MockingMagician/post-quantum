@@ -93,6 +93,13 @@ pub(crate) fn equal_mask(a: &[u8], b: &[u8]) -> u8 {
     post_quantum_platform::opaque_u8(0u8.wrapping_sub((nonzero ^ 1) as u8))
 }
 
+/// Selects the accepted byte for mask 0xff, or the rejection byte for mask 0.
+/// The caller must supply one of those two masks.
+#[inline]
+pub(crate) fn select_byte(rejection: u8, accepted: u8, mask: u8) -> u8 {
+    (rejection & !mask) | (accepted & mask)
+}
+
 /// Little-endian coefficient bit packing; widths and lengths are public.
 pub(crate) fn pack(values: &[u32], width: usize, output: &mut [u8]) {
     debug_assert_eq!(values.len() * width, output.len() * 8);
@@ -152,5 +159,53 @@ mod tests {
             b[i] ^= 1;
             assert_eq!(equal_mask(&[1; 64], &b), 0);
         }
+    }
+}
+
+#[cfg(kani)]
+mod proofs {
+    use super::*;
+
+    fn prove_field<const Q: u32>() {
+        let a: u32 = kani::any();
+        let b: u32 = kani::any();
+        let x: u32 = kani::any();
+        kani::assume(a < Q && b < Q && x < 2 * Q);
+        kani::cover!(a == 0 && b == Q - 1 && x == 2 * Q - 1);
+        assert_eq!(reduce_once::<Q>(x), x % Q);
+        assert_eq!(add::<Q>(a, b), ((a as u64 + b as u64) % Q as u64) as u32);
+        assert_eq!(
+            sub::<Q>(a, b),
+            ((a as u64 + Q as u64 - b as u64) % Q as u64) as u32
+        );
+        let expected = if a > Q / 2 {
+            a as i32 - Q as i32
+        } else {
+            a as i32
+        };
+        assert_eq!(centered::<Q>(a), expected);
+        assert_eq!(from_centered::<Q>(expected), a);
+    }
+
+    #[kani::proof]
+    fn ml_kem_field_3329() {
+        prove_field::<3329>();
+    }
+
+    #[kani::proof]
+    fn ml_dsa_field_8380417() {
+        prove_field::<8380417>();
+    }
+
+    #[kani::proof]
+    fn implicit_rejection_byte_selection() {
+        let rejected: u8 = kani::any();
+        let accepted: u8 = kani::any();
+        let mask: u8 = kani::any();
+        kani::assume(mask == 0 || mask == 255);
+        kani::cover!(mask == 0);
+        kani::cover!(mask == 255);
+        let result = select_byte(rejected, accepted, mask);
+        assert_eq!(result, if mask == 255 { accepted } else { rejected });
     }
 }

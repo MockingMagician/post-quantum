@@ -100,6 +100,15 @@ jobs:
       - run: rustup toolchain install nightly-2026-09-21 --profile minimal --component miri
       - run: cargo +nightly-2026-09-21 miri test -p post-quantum-platform --lib --frozen
 
+  bounded-proofs:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: cargo install --locked kani-verifier --version 0.66.0
+      - run: cargo kani setup
+      - name: Prove bounded arithmetic and implicit-rejection selection properties
+        run: cargo kani -p post-quantum-core --output-format terse
+
   ffi-asan:
     runs-on: ubuntu-24.04
     strategy:
@@ -213,7 +222,7 @@ jobs:
           if-no-files-found: error
 
   delivery-gate:
-    needs: [quality, fuzz, ffi-asan, platform-miri, native, musl]
+    needs: [quality, fuzz, ffi-asan, platform-miri, bounded-proofs, native, musl]
     runs-on: ubuntu-22.04
     permissions:
       contents: read

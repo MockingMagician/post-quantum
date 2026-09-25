@@ -73,6 +73,6 @@ node scripts/benchmark.mjs --iterations 30
 
 La CI ASan cible Node 22. Le contrôle local Node 24.21.0 rencontre des fuites de l'hôte même sans charger le binding ; aucun succès ASan sous Node 24 n'est revendiqué et aucune suppression ne les masque. Le wrapper accepte un exécutable Node 24 pour reproduire cette limite, en faisant échouer sa baseline. Les tests fonctionnels et d'archives Node 24 restent exigés indépendamment.
 
-Les sources sont initialement sans commit ni remote : les rapports locaux peuvent porter `commit: null` et `dirty: true`, avec une empreinte du contenu. Une future livraison complète reste soumise au commit propre et aux preuves d'exécution de toutes les cellules Linux x64/ARM64 glibc/musl, macOS x64/ARM64 et Windows x64 avec Node 22 et 24. Les contrôles distants restent préparés, sans les déclarer exécutés.
+Une livraison complète reste soumise au commit propre et aux preuves d'exécution de toutes les cellules Linux x64/ARM64 glibc/musl, macOS x64/ARM64 et Windows x64 avec Node 22 et 24. Les rapports locaux portent une empreinte du contenu ; seuls les résultats des cellules GitHub Actions effectivement terminées comptent pour la matrice distante. Les preuves bornées Kani sont décrites dans [ASSURANCE.md](ASSURANCE.md).
 
 Aucun de ces contrôles n'est un audit indépendant, une certification CAVP/FIPS, une preuve de la composition PQRS ou une preuve absolue de résistance quantique. La [provenance](PROVENANCE.md) et le [modèle de sécurité](SECURITY.md) indiquent les hypothèses maintenues.

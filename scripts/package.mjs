@@ -13,7 +13,7 @@ if (manifest.private !== true) throw new Error('Public publication is outside th
 for (const item of Object.values(targets)) {
   if (manifest.optionalDependencies?.[`${manifest.name}-${item.platform}`] !== manifest.version) throw new Error(`Missing exact optional dependency for ${item.platform}`);
 }
-for (const path of ['index.cjs', 'index.mjs', 'index.d.ts', 'README.md', 'SECURITY.md', 'Cargo.lock', 'package-lock.json']) {
+for (const path of ['index.cjs', 'index.mjs', 'index.d.ts', 'README.md', 'LICENSE-MIT', 'LICENSE-APACHE', 'SECURITY.md', 'Cargo.lock', 'package-lock.json']) {
   if (!existsSync(join(root, path))) throw new Error(`Missing required packaging input: ${path}`);
 }
 const binary = `post_quantum.${selected}.node`;
@@ -26,10 +26,13 @@ const packageDirectory = join(destination, 'platform-package');
 mkdirSync(packageDirectory, { recursive: true });
 copyFileSync(sourceBinary, join(packageDirectory, binary));
 copyFileSync(`${sourceBinary}.build.json`, join(packageDirectory, 'BUILD.json'));
+copyFileSync(join(root, 'LICENSE-MIT'), join(packageDirectory, 'LICENSE-MIT'));
+copyFileSync(join(root, 'LICENSE-APACHE'), join(packageDirectory, 'LICENSE-APACHE'));
 const nativeManifest = {
   name: `${manifest.name}-${selected}`, version: manifest.version, private: true,
   description: `Native ${selected} binding for ${manifest.name}`,
-  main: binary, files: [binary, 'BUILD.json'],
+  license: manifest.license,
+  main: binary, files: [binary, 'BUILD.json', 'LICENSE-MIT', 'LICENSE-APACHE'],
   os: [target.os], cpu: [target.cpu], ...(target.libc ? { libc: [target.libc] } : {}),
   engines: manifest.engines,
 };

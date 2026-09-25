@@ -260,7 +260,7 @@ impl PrivateKey {
         let mut secret = Zeroizing::new([0; 32]);
         hash::shake256(&[&self.z[..], ct]).read(&mut secret[..]);
         for i in 0..32 {
-            secret[i] = (secret[i] & !mask) | (expanded[i] & mask);
+            secret[i] = a::select_byte(secret[i], expanded[i], mask);
         }
         Ok(secret)
     }

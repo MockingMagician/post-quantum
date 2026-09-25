@@ -60,6 +60,6 @@ Le workflow `.github/workflows/ci.yml` exécute formatage, Clippy, tests Rust/No
 
 Après collecte des sept dossiers `dist/<plateforme>/`, `npm run verify:release` exige un checkout de compilation propre et commité, des commits identiques, les bonnes versions, les empreintes attendues et une preuve de test des archives sous chaque version de Node.js. Une preuve manquante ou périmée fait échouer le contrôle. Le workflow produit alors `release-verification.json` et, hors pull request, une attestation GitHub de provenance des archives. Les métadonnées locales non signées ne remplacent pas cette attestation.
 
-Le périmètre demandé s'arrête à la préparation de la CI, sans envoi sur GitHub. Aucun dépôt distant n'est donc requis pour terminer cette étape locale. Le workflow est prêt pour une activation ultérieure par le propriétaire ; les plateformes distantes du tableau restent non exécutées.
+Le workflow GitHub est activé lors de la publication du dépôt. Un résultat n'est déclaré validé qu'après exécution réussie de la cellule correspondante ; la seule présence du workflow ne suffit pas.
 
-Le dépôt local initial ne dispose d'aucun commit ni remote Git. `verify:release` doit continuer à refuser une livraison multiplateforme tant que les sources ne sont pas commitées et que les preuves d'exécution de la matrice ne sont pas disponibles. Ce contrôle de future livraison reste distinct de l'achèvement de la préparation locale ; les artefacts de développement sont utilisables pour les tests.
+`verify:release` refuse une livraison multiplateforme tant que les sources ne sont pas commitées et que les preuves d'exécution de la matrice ne sont pas disponibles. Les artefacts de développement restent utilisables pour les tests locaux.
