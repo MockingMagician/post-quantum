@@ -26,6 +26,11 @@ FUNCTIONS = {
     "post_quantum_core::symmetric::open",
 }
 
+# GNU objdump on some GitHub runners does not demangle this LLVM-suffixed Rust
+# symbol, even though the function remains a separate symbol in the object.
+# Match its exact legacy mangling prefix rather than making the tag check optional.
+TAG_MANGLED = re.compile(r"_ZN17post_quantum_core9symmetric3tag17h[0-9a-f]+E(?:\.llvm\.\d+)?")
+
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
@@ -58,8 +63,12 @@ def functions(assembly):
     for body in re.split(r"(?=^[0-9a-f]+ <)", assembly, flags=re.M):
         first = body.splitlines()[0] if body else ""
         match = re.fullmatch(r"[0-9a-f]+ <(.+)>:", first)
-        if match and match[1] in FUNCTIONS:
-            yield match[1], body
+        if match:
+            name = match[1]
+            if TAG_MANGLED.fullmatch(name):
+                name = "post_quantum_core::symmetric::tag"
+            if name in FUNCTIONS:
+                yield name, body
 
 
 def correlate(body, binary):

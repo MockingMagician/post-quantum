@@ -46,7 +46,9 @@ jobs:
           path: .reports/codegen/
           if-no-files-found: error
       - name: Correlate selected post-ThinLTO instruction excerpts with the Node library
-        run: python3 validation/linked_codegen.py
+        run: |
+          python3 -m unittest discover -s validation -p test_linked_codegen.py
+          python3 validation/linked_codegen.py
       - name: Preserve bounded final-link review material
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

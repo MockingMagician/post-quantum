@@ -65,6 +65,9 @@ Linux GNU x64. Il compile le module Node avec le profil `release` habituel et
 les objets natifs après ThinLTO, leur désassemblage, la bibliothèque liée et le
 rapport `artifacts/validation/linked-codegen.json`. Les sources Cargo/Rust sont
 empreintées avant et après la compilation ; elles doivent rester identiques.
+Le parseur accepte le nom démanglé de `symmetric::tag` ou son symbole Rust exact
+avec suffixe LLVM, selon la version d'`objdump` du runner ; cette fonction reste
+obligatoire et ses octets doivent être retrouvés dans la bibliothèque liée.
 
 La capture sélectionne `opaque_u8`, la comparaison des octets, la décapsulation
 ML-KEM, les normes ML-DSA, le calcul du tag et son contrôle. Des suites d'octets
