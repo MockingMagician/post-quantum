@@ -1,5 +1,7 @@
 # Dossier préparatoire d'audit indépendant
 
+Pour les démarches de prise de contact et de financement, consulter le [brief de prospection destiné à l'association](BRIEF-AUDIT-ASSOCIATION.md), ses [modèles de messages](AUDIT-MESSAGES.md) et sa [fiche technique transmissible](AUDIT-FICHE-TECHNIQUE.md).
+
 ## Objet
 
 Paquet Node.js typé TypeScript dont les opérations cryptographiques sont implémentées en Rust. Le cœur utilise ML-KEM-1024, ML-DSA-87, HKDF-SHA-512 et ChaCha20-Poly1305, avec une enveloppe locale `PQRSv1`. Trois crates locales constituent le graphe de production ; la bibliothèque standard, le compilateur, le système d'exploitation et Node-API restent dans la base de confiance. Le code original est offert sous `MIT OR Apache-2.0`, et les vecteurs ACVP NIST conservent leur notice.
